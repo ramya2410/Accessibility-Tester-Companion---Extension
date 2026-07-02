@@ -1,0 +1,14 @@
+/* CSS styling specifically for content rendering overrides if needed */
+#a11ytester-floating-tooltip * {
+  box-sizing: border-box !important;
+}
+#a11ytester-floating-tooltip::-webkit-scrollbar {
+  width: 6px;
+}
+#a11ytester-floating-tooltip::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+#a11ytester-floating-tooltip::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
