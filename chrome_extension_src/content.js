@@ -144,6 +144,26 @@
         "Verify pressing Tab immediately escapes the grid widget instead of tabbing through every single cell.",
         "Verify sorting columns communicates state programmatically using aria-sort=\"ascending\" or \"descending\"."
       ]
+    },
+    "link-dropdown": {
+      title: "Link-Dropdown Combo Accessibility (ARIA APG)",
+      scenarios: [
+        "Verify the link trigger indicates it has a popup submenu using aria-haspopup=\"true\" or aria-haspopup=\"menu\".",
+        "Verify expansion state is updated programmatically on the link trigger via aria-expanded=\"true\"/\"false\".",
+        "Verify using Down Arrow or Enter on the link trigger successfully opens and moves focus into the dropdown menu.",
+        "Verify pressing Escape closes the dropdown and returns keyboard focus directly back to the trigger link.",
+        "Verify that visual indicators (e.g. chevron icons) clearly signal the dropdown behavior to visual users."
+      ]
+    },
+    "image-link": {
+      title: "Image-Link Combo Accessibility (ARIA APG)",
+      scenarios: [
+        "Verify the parent link (<a>) has an accessible name, either from alt text on the inner image or aria-label.",
+        "Verify the inner image has an alt attribute to prevent the screen reader from reading raw image filename or link URL.",
+        "Verify the alt text describes the destination or purpose of the link rather than just describing the image literally (e.g., 'Go to Dashboard' vs 'Dashboard icon').",
+        "Verify you do not have redundant alt text inside the link like 'link to dashboard image' as screen readers already announce the link role.",
+        "Verify the composite element behaves as a single focusable interactive target when tabbing through the document."
+      ]
     }
   };
 
@@ -153,7 +173,7 @@
   controlPanel.style.cssText = 'position: fixed !important; bottom: 20px !important; right: 20px !important; background-color: #1e293b !important; color: #ffffff !important; padding: 10px 14px !important; border-radius: 9999px !important; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3) !important; z-index: 2147483647 !important; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important; font-size: 11px !important; font-weight: bold !important; display: flex !important; align-items: center !important; gap: 8px !important; border: 1px solid #334155 !important; pointer-events: auto !important; user-select: none !important; line-height: 1 !important;';
 
   const panelTitle = document.createElement('span');
-  panelTitle.textContent = 'A11y Inspector:';
+  panelTitle.textContent = 'Accessibility Inspector:';
   panelTitle.style.cssText = 'color: #94a3b8 !important; font-size: 10px !important; text-transform: uppercase !important; letter-spacing: 0.05em !important;';
   controlPanel.appendChild(panelTitle);
 
@@ -307,6 +327,22 @@
       // 8. Check Button (lower priority than specific inputs, so checkbox inside button matches checkbox)
       if (tagName === 'button' || role === 'button' || type === 'button' || type === 'submit') {
         candidates.push({ type: 'button', el: current, priority: 5 });
+      }
+      // Check Link-Dropdown Combo
+      if (tagName === 'a' || role === 'link') {
+        const lowerHTML = current.outerHTML ? current.outerHTML.toLowerCase() : '';
+        if (current.hasAttribute('aria-haspopup') || current.hasAttribute('aria-expanded') || lowerHTML.includes('dropdown') || lowerHTML.includes('popup')) {
+          candidates.push({ type: 'link-dropdown', el: current, priority: 8 });
+        }
+      }
+      // Check Image-Link Combo
+      if (tagName === 'a' || role === 'link') {
+        // Exclude icon links (typically links containing an SVG icon or font-awesome/lucide icon, but no real <img> tag)
+        const hasImg = current.querySelector('img');
+        const hasRoleImg = current.querySelector('[role="img"]');
+        if (hasImg || (hasRoleImg && hasRoleImg.tagName.toLowerCase() !== 'svg')) {
+          candidates.push({ type: 'image-link', el: current, priority: 7 });
+        }
       }
       // 9. Check Link (lowest priority so specific controls inside an anchor link cards match their control)
       if (tagName === 'a' || role === 'link') {
