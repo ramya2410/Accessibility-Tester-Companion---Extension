@@ -10,7 +10,7 @@
   const tooltip = document.createElement('div');
   tooltip.id = 'a11ytester-floating-tooltip';
   tooltip.style.cssText = `
-    position: fixed !important;
+    position: absolute !important;
     width: 340px !important;
     max-height: 480px !important;
     background-color: #ffffff !important;
@@ -370,17 +370,24 @@
   function positionTooltip(el) {
     const rect = el.getBoundingClientRect();
     const tooltipWidth = 340;
+    const tooltipHeight = tooltip.offsetHeight || 300;
     const margin = 12;
 
     // Calculate vertical coordinates
     let top = rect.bottom + window.scrollY + margin;
     
     // If it floats off the bottom of the viewport screen, position above the element
-    if (rect.bottom + 280 > window.innerHeight) {
-      top = rect.top + window.scrollY - 300;
+    if (rect.bottom + tooltipHeight + margin > window.innerHeight) {
+      top = rect.top + window.scrollY - tooltipHeight - margin;
     }
-    if (top < window.scrollY) {
-      top = rect.bottom + window.scrollY + margin;
+    
+    // Ensure it doesn't go above the top of the scrollable page
+    if (top < window.scrollY + margin) {
+      if (window.innerHeight - rect.bottom > rect.top) {
+        top = rect.bottom + window.scrollY + margin;
+      } else {
+        top = window.scrollY + margin;
+      }
     }
 
     // Calculate horizontal coordinates
